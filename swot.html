@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Web SWOT Analyzer - Live Website Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ========== THEME SYSTEM ========== */
+:root{--font:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;--radius:16px;--radius-sm:10px;--radius-xs:6px;--t:0.3s cubic-bezier(.4,0,.2,1);--green:#10B981;--green-bg:rgba(16,185,129,.12);--yellow:#F59E0B;--yellow-bg:rgba(245,158,11,.12);--red:#EF4444;--red-bg:rgba(239,68,68,.12);--blue:#3B82F6;--blue-bg:rgba(59,130,246,.12);--purple:#A78BFA;--purple-bg:rgba(167,139,250,.12)}
+[data-theme="dark"]{--p:#818CF8;--p-rgb:129,140,248;--accent:#F472B6;--accent-rgb:244,114,182;--sec:#34D399;--sec-rgb:52,211,153;--bg:#09090B;--bg2:#18181B;--bg3:#1F1F23;--bg4:#27272A;--glass:rgba(31,31,35,.75);--tx:#FAFAFA;--tx2:#A1A1AA;--tx3:#71717A;--bdr:rgba(63,63,70,.6);--bdr2:rgba(113,113,122,.5);--sh-sm:0 1px 3px rgba(0,0,0,.4);--sh-md:0 4px 16px rgba(0,0,0,.4);--sh-lg:0 8px 32px rgba(0,0,0,.5);--glow:rgba(var(--p-rgb),.06);--s-color:#10B981;--w-color:#EF4444;--o-color:#3B82F6;--t-color:#F59E0B;--s-bg:rgba(16,185,129,.08);--w-bg:rgba(239,68,68,.08);--o-bg:rgba(59,130,246,.08);--t-bg:rgba(245,158,11,.08)}
+[data-theme="light"]{--p:#6366F1;--p-rgb:99,102,241;--accent:#EC4899;--accent-rgb:236,72,153;--sec:#059669;--sec-rgb:5,150,105;--bg:#F8FAFC;--bg2:#FFFFFF;--bg3:#FFFFFF;--bg4:#F1F5F9;--glass:rgba(255,255,255,.8);--tx:#0F172A;--tx2:#475569;--tx3:#94A3B8;--bdr:rgba(226,232,240,.9);--bdr2:rgba(148,163,184,.5);--sh-sm:0 1px 3px rgba(0,0,0,.06);--sh-md:0 4px 16px rgba(0,0,0,.08);--sh-lg:0 8px 32px rgba(0,0,0,.1);--glow:rgba(var(--p-rgb),.04);--s-color:#059669;--w-color:#DC2626;--o-color:#2563EB;--t-color:#D97706;--s-bg:rgba(5,150,105,.06);--w-bg:rgba(220,38,38,.06);--o-bg:rgba(37,99,235,.06);--t-bg:rgba(217,119,6,.06)}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--tx);line-height:1.65;min-height:100vh;transition:background var(--t),color var(--t);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--p);border-radius:3px}
+.container{max-width:1320px;margin:0 auto;padding:0 24px}
+
+/* BG Mesh */
+.bg-mesh{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg-mesh::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 25% 25%,rgba(var(--p-rgb),.07) 0%,transparent 40%),radial-gradient(circle at 75% 75%,rgba(var(--accent-rgb),.05) 0%,transparent 40%);animation:meshF 25s ease-in-out infinite}
+@keyframes meshF{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(2%,-2%) rotate(1deg)}}
+
+/* Header */
+.header{position:sticky;top:0;z-index:1000;background:var(--glass);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid var(--bdr);transition:all var(--t)}
+.header-inner{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--tx)}
+.logo-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--p),var(--accent));border-radius:10px;display:grid;place-items:center;position:relative;overflow:hidden}
+.logo-icon::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,.2));border-radius:inherit}
+.logo-icon svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2.5;position:relative;z-index:1}
+.logo-text{font-size:20px;font-weight:800;letter-spacing:-.5px}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-links{display:flex;gap:4px;margin-right:12px}
+.nav-links a{color:var(--tx2);text-decoration:none;font-size:14px;font-weight:500;padding:8px 14px;border-radius:var(--radius-sm);transition:all var(--t)}
+.nav-links a:hover{color:var(--tx);background:var(--glow)}
+.theme-toggle{width:44px;height:44px;border-radius:12px;border:1px solid var(--bdr);background:var(--bg3);color:var(--tx);cursor:pointer;display:grid;place-items:center;transition:all var(--t);font-size:18px}
+.theme-toggle:hover{border-color:var(--p);background:rgba(var(--p-rgb),.1);transform:scale(1.05)}
+.theme-toggle svg{width:20px;height:20px;transition:transform .5s cubic-bezier(.4,0,.2,1)}
+.theme-toggle:hover svg{transform:rotate(30deg)}
+
+/* Hero */
+.hero{position:relative;z-index:1;text-align:center;padding:72px 24px 48px;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(var(--p-rgb),.2) 0%,transparent 70%)}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(var(--p-rgb),.1);border:1px solid rgba(var(--p-rgb),.2);border-radius:999px;font-size:13px;font-weight:600;color:var(--p);margin-bottom:24px}
+.hero-badge .pulse{width:8px;height:8px;background:var(--green);border-radius:50%;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}
+.hero h1{font-size:clamp(30px,5.5vw,54px);font-weight:900;letter-spacing:-1.5px;line-height:1.1;margin-bottom:20px}
+.hero h1 .grad{background:linear-gradient(135deg,var(--p) 0%,var(--accent) 50%,var(--sec) 100%);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradShift 6s ease infinite}
+@keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.hero-sub{font-size:17px;color:var(--tx2);max-width:600px;margin:0 auto 36px;font-weight:400}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* Search */
+.search-wrap{max-width:700px;margin:0 auto}
+.search-box{position:relative;background:var(--bg3);border:1.5px solid var(--bdr);border-radius:18px;padding:6px;display:flex;align-items:center;transition:all var(--t);box-shadow:var(--sh-md)}
+.search-box:focus-within{border-color:var(--p);box-shadow:var(--sh-md),0 0 0 4px rgba(var(--p-rgb),.12)}
+.search-box .si{display:grid;place-items:center;padding:0 8px 0 14px;color:var(--tx3)}
+.search-box .si svg{width:20px;height:20px}
+.search-box input{flex:1;padding:14px 8px;background:transparent;border:none;color:var(--tx);font-size:16px;font-family:var(--font);outline:none}
+.search-box input::placeholder{color:var(--tx3)}
+.search-box button{padding:12px 28px;background:linear-gradient(135deg,var(--p),var(--accent));color:#fff;border:none;border-radius:13px;font-size:15px;font-weight:700;font-family:var(--font);cursor:pointer;transition:all var(--t);white-space:nowrap;display:flex;align-items:center;gap:8px}
+.search-box button:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(var(--p-rgb),.4)}
+.search-box button:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.search-box button svg{width:16px;height:16px}
+
+.features{display:flex;justify-content:center;gap:24px;margin-top:24px;flex-wrap:wrap}
+.feat{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--tx3);font-weight:500}
+.feat svg{width:16px;height:16px;color:var(--green)}
+
+/* Loading */
+.loading{display:none;text-align:center;padding:80px 24px;position:relative;z-index:1}
+.loading.active{display:block}
+.ld{width:64px;height:64px;margin:0 auto 28px;position:relative}
+.ld::before,.ld::after{content:'';position:absolute;inset:0;border-radius:50%;border:3px solid transparent}
+.ld::before{border-top-color:var(--p);animation:spin 1s linear infinite}
+.ld::after{border-bottom-color:var(--accent);animation:spin 1.5s linear infinite reverse;inset:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ld-title{font-size:20px;font-weight:700;margin-bottom:8px}
+.ld-sub{font-size:14px;color:var(--tx2);margin-bottom:32px}
+.ld-steps{list-style:none;max-width:400px;margin:0 auto}
+.ld-steps li{display:flex;align-items:center;gap:12px;padding:10px 16px;font-size:14px;color:var(--tx3);border-radius:var(--radius-sm);margin-bottom:4px;transition:all var(--t)}
+.ld-steps li.done{color:var(--green);background:var(--green-bg)}
+.ld-steps li.active{color:var(--tx);background:rgba(var(--p-rgb),.08)}
+.st-i{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;flex-shrink:0}
+
+/* Error */
+.error-box{display:none;max-width:600px;margin:20px auto;padding:20px 24px;background:var(--red-bg);border:1px solid rgba(239,68,68,.3);border-radius:var(--radius);text-align:center;position:relative;z-index:1}
+.error-box.active{display:block}
+.error-box h3{color:var(--red);font-size:16px;margin-bottom:6px}
+.error-box p{color:var(--tx2);font-size:14px}
+
+/* Ad Space */
+.ad-space{background:var(--bg3);border:1.5px dashed var(--bdr);border-radius:var(--radius);padding:20px;text-align:center;color:var(--tx3);font-size:12px;margin:28px auto;max-width:728px;min-height:90px;display:flex;align-items:center;justify-content:center;font-weight:500;transition:all var(--t)}
+.ad-space.sidebar-ad{max-width:100%;min-height:250px}
+
+/* ========== RESULTS ========== */
+.results{display:none;padding:0 0 80px;position:relative;z-index:1}
+.results.active{display:block}
+
+.res-header{text-align:center;padding:32px 0 24px}
+.res-url{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;background:var(--bg3);border:1px solid var(--bdr);border-radius:999px;font-size:14px;font-weight:500;color:var(--tx2);word-break:break-all}
+.res-url svg{width:16px;height:16px;color:var(--p);flex-shrink:0}
+
+/* SWOT Score Overview */
+.swot-score-hero{display:grid;grid-template-columns:280px 1fr;gap:40px;align-items:center;background:linear-gradient(135deg,rgba(var(--p-rgb),.04) 0%,transparent 60%),var(--bg3);border:1px solid var(--bdr);border-radius:var(--radius);padding:40px;margin-bottom:32px;box-shadow:var(--sh-sm)}
+
+/* Radar Chart */
+.radar-wrap{position:relative;width:240px;height:240px;margin:0 auto}
+.radar-wrap canvas{width:240px!important;height:240px!important}
+.radar-score{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
+.radar-score .num{font-size:44px;font-weight:900;letter-spacing:-2px;display:block;line-height:1}
+.radar-score .lbl{font-size:11px;color:var(--tx3);font-weight:700;text-transform:uppercase;letter-spacing:1px}
+
+.swot-dims{display:flex;flex-direction:column;gap:16px}
+.dim-row{display:flex;align-items:center;gap:14px}
+.dim-icon{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:18px;font-weight:800;flex-shrink:0}
+.dim-icon.s{background:var(--s-bg);color:var(--s-color)}
+.dim-icon.w{background:var(--w-bg);color:var(--w-color)}
+.dim-icon.o{background:var(--o-bg);color:var(--o-color)}
+.dim-icon.t{background:var(--t-bg);color:var(--t-color)}
+.dim-info{flex:1}
+.dim-label{font-size:13px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
+.dim-bar{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.dim-bar-fill{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.dim-bar-fill.s{background:var(--s-color)}
+.dim-bar-fill.w{background:var(--w-color)}
+.dim-bar-fill.o{background:var(--o-color)}
+.dim-bar-fill.t{background:var(--t-color)}
+.dim-val{font-weight:800;font-size:14px;width:36px;text-align:right}
+
+/* SWOT Grid */
+.swot-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px}
+.swot-card{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--radius);padding:0;overflow:hidden;transition:all var(--t);box-shadow:var(--sh-sm)}
+.swot-card:hover{box-shadow:var(--sh-md);border-color:var(--bdr2)}
+.swot-card-head{padding:18px 22px 14px;display:flex;align-items:center;gap:12px;font-weight:800;font-size:16px;border-bottom:1px solid var(--bdr)}
+.swot-card-head .sq{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-size:15px;font-weight:900}
+.swot-card-head.s-head{color:var(--s-color)}.swot-card-head.s-head .sq{background:var(--s-bg);color:var(--s-color)}
+.swot-card-head.w-head{color:var(--w-color)}.swot-card-head.w-head .sq{background:var(--w-bg);color:var(--w-color)}
+.swot-card-head.o-head{color:var(--o-color)}.swot-card-head.o-head .sq{background:var(--o-bg);color:var(--o-color)}
+.swot-card-head.t-head{color:var(--t-color)}.swot-card-head.t-head .sq{background:var(--t-bg);color:var(--t-color)}
+.swot-card-body{padding:8px 14px 14px}
+.swot-item{display:flex;align-items:flex-start;gap:10px;padding:10px;border-radius:var(--radius-xs);transition:background var(--t);font-size:13px;line-height:1.5}
+.swot-item:hover{background:var(--glow)}
+.swot-bullet{width:6px;height:6px;border-radius:50%;margin-top:7px;flex-shrink:0}
+.swot-item .metric{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:700;font-family:var(--mono);margin-left:4px}
+.swot-item .metric.good{background:var(--green-bg);color:var(--green)}
+.swot-item .metric.warn{background:var(--yellow-bg);color:var(--yellow)}
+.swot-item .metric.bad{background:var(--red-bg);color:var(--red)}
+.swot-item .metric.info{background:var(--blue-bg);color:var(--blue)}
+
+/* Params Table */
+.params-section{margin-bottom:32px}
+.params-section h3{font-size:18px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.params-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.param-card{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--radius-sm);padding:16px;transition:all var(--t)}
+.param-card:hover{border-color:var(--bdr2);box-shadow:var(--sh-sm)}
+.param-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.param-name{font-size:13px;font-weight:600}
+.param-val{font-family:var(--mono);font-size:12px;font-weight:700;padding:2px 8px;border-radius:4px}
+.param-val.good{background:var(--green-bg);color:var(--green)}
+.param-val.warn{background:var(--yellow-bg);color:var(--yellow)}
+.param-val.bad{background:var(--red-bg);color:var(--red)}
+.param-bar{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.param-bar-fill{height:100%;border-radius:2px;transition:width 1s ease}
+
+/* Raw Data */
+.raw-section{margin-bottom:32px}
+.raw-toggle{cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--radius);transition:all var(--t);user-select:none}
+.raw-toggle:hover{border-color:var(--bdr2)}
+.raw-toggle h4{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.raw-arrow{width:24px;height:24px;border-radius:6px;background:var(--bg4);display:grid;place-items:center;font-size:11px;color:var(--tx3);transition:all var(--t)}
+.raw-toggle.open .raw-arrow{transform:rotate(180deg);background:rgba(var(--p-rgb),.15);color:var(--p)}
+.raw-body{max-height:0;overflow:hidden;transition:max-height .5s cubic-bezier(.4,0,.2,1)}
+.raw-body.open{max-height:5000px}
+.raw-body-inner{padding:16px;background:var(--bg4);border:1px solid var(--bdr);border-top:none;border-radius:0 0 var(--radius) var(--radius)}
+.raw-body pre{font-family:var(--mono);font-size:12px;color:var(--tx2);white-space:pre-wrap;word-break:break-all;line-height:1.5;max-height:400px;overflow-y:auto}
+
+/* Footer */
+.footer{position:relative;z-index:1;border-top:1px solid var(--bdr);padding:48px 24px;text-align:center}
+.footer p{font-size:14px;color:var(--tx2);margin-bottom:4px}
+.footer .copy{font-size:12px;color:var(--tx3);margin-top:12px}
+
+/* Responsive */
+@media(max-width:900px){.swot-grid{grid-template-columns:1fr}.swot-score-hero{grid-template-columns:1fr;text-align:center}.nav-links{display:none}}
+@media(max-width:600px){.hero{padding:48px 16px 32px}.search-box button span.btn-text{display:none}.search-box button{padding:12px 16px}.swot-score-hero{padding:24px}}
+@media print{.header,.ad-space,.footer,.bg-mesh,.theme-toggle,.search-wrap,.features{display:none!important}body{background:#fff;color:#000}}
+</style>
+</head>
+<body>
+<div class="bg-mesh"></div>
+
+<!-- HEADER -->
+<header class="header">
+<div class="container">
+<div class="header-inner">
+    <a href="index.html" class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg></div><span class="logo-text">WEB SWOT</span></a>
+    <div class="nav-right">
+        <nav class="nav-links"><a href="index.html">SEO Tool</a><a href="#swot">SWOT</a></nav>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+    </div>
+</div>
+</div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="swot">
+<div class="hero-badge"><div class="pulse"></div>AI-Powered Live Analysis</div>
+<h1>Real-Time Website<br><span class="grad">SWOT Intelligence</span></h1>
+<p class="hero-sub">Fetches actual page content, parses 30+ metrics from live HTML, and generates a unique Strengths, Weaknesses, Opportunities &amp; Threats report for any website.</p>
+<div class="search-wrap">
+    <div class="search-box" id="searchBox">
+        <div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <input type="url" id="urlInput" placeholder="Enter any website URL (e.g., github.com)" autocomplete="url" spellcheck="false">
+        <button id="analyzeBtn" onclick="runSwot()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg><span class="btn-text">Analyze SWOT</span></button>
+    </div>
+</div>
+<div class="features">
+    <div class="feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Live HTML Parsing</div>
+    <div class="feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>30+ Real Metrics</div>
+    <div class="feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Unique Per Website</div>
+</div>
+</section>
+
+<!-- Ad -->
+<div class="container"><div class="ad-space">Advertisement &mdash; Google AdSense (728x90)</div></div>
+
+<!-- Loading -->
+<div class="loading" id="loadingEl">
+<div class="ld"></div>
+<div class="ld-title">Analyzing live website data</div>
+<div class="ld-sub" id="ldUrl"></div>
+<ul class="ld-steps" id="ldSteps">
+    <li class="active"><div class="st-i">&#8635;</div>Fetching live HTML via proxy</li>
+    <li><div class="st-i">&#8226;</div>Parsing DOM structure &amp; meta tags</li>
+    <li><div class="st-i">&#8226;</div>Analyzing content &amp; readability</li>
+    <li><div class="st-i">&#8226;</div>Detecting technology stack</li>
+    <li><div class="st-i">&#8226;</div>Evaluating UX &amp; accessibility signals</li>
+    <li><div class="st-i">&#8226;</div>Computing SWOT scores (30+ params)</li>
+    <li><div class="st-i">&#8226;</div>Generating unique SWOT insights</li>
+</ul>
+</div>
+
+<!-- Error -->
+<div class="error-box" id="errorBox"><h3>Analysis Failed</h3><p id="errorMsg"></p></div>
+
+<!-- RESULTS -->
+<section class="results" id="resultsEl">
+<div class="container">
+
+<div class="res-header">
+    <div class="res-url"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span id="resUrlText"></span></div>
+</div>
+
+<!-- Score Hero + Radar -->
+<div class="swot-score-hero" id="scoreHero">
+    <div class="radar-wrap"><canvas id="radarCanvas" width="480" height="480"></canvas><div class="radar-score"><span class="num" id="swotScoreNum">0</span><span class="lbl">SWOT Score</span></div></div>
+    <div class="swot-dims" id="swotDims"></div>
+</div>
+
+<!-- SWOT Grid -->
+<div class="swot-grid" id="swotGrid"></div>
+
+<!-- Detailed Params -->
+<div class="params-section" id="paramsSection">
+    <h3><span style="font-size:20px">&#128202;</span> Detailed Metrics (30+ Parameters)</h3>
+    <div class="params-grid" id="paramsGrid"></div>
+</div>
+
+<!-- Ad -->
+<div class="ad-space">Advertisement &mdash; Google AdSense (728x90)</div>
+
+<!-- Raw Data -->
+<div class="raw-section">
+    <div class="raw-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+        <h4>&#128196; Raw Extracted Data (JSON)</h4>
+        <div class="raw-arrow">&#9660;</div>
+    </div>
+    <div class="raw-body"><div class="raw-body-inner"><pre id="rawJson"></pre></div></div>
+</div>
+
+</div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+<div class="container">
+    <p><strong>WEB SWOT</strong> &mdash; Real-time website intelligence powered by live content parsing.</p>
+    <p class="copy">&copy; 2026 SWOT Analyzer. Built for analytical purposes.</p>
+</div>
+</footer>
+
+<script>
+// ========== THEME ==========
+function toggleTheme(){const h=document.documentElement,c=h.getAttribute('data-theme'),n=c==='dark'?'light':'dark';h.setAttribute('data-theme',n);localStorage.setItem('swot-theme',n);updateThemeIcon(n)}
+function updateThemeIcon(t){const i=document.getElementById('themeIcon');i.innerHTML=t==='light'?'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>':'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'}
+(function(){const s=localStorage.getItem('swot-theme');if(s){document.documentElement.setAttribute('data-theme',s);updateThemeIcon(s)}})();
+
+// ========== HELPERS ==========
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
+function normalizeUrl(u){u=u.trim();if(!u)return'';if(!/^https?:\/\//i.test(u))u='https://'+u;return u}
+function getDomain(u){try{return new URL(u).hostname}catch{return u}}
+function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v))}
+
+// ========== CORS PROXY FETCHER ==========
+const PROXIES=[
+    u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    u=>`https://corsproxy.io/?${encodeURIComponent(u)}`,
+    u=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`
+];
+
+async function fetchHTML(url){
+    let lastErr;
+    for(const mkProxy of PROXIES){
+        try{
+            const resp=await fetch(mkProxy(url),{signal:AbortSignal.timeout(12000)});
+            if(!resp.ok) throw new Error(resp.status);
+            const html=await resp.text();
+            if(html.length<100) throw new Error('Empty');
+            return html;
+        }catch(e){lastErr=e}
+    }
+    throw new Error('Could not fetch website. '+lastErr?.message);
+}
+
+// ========== LIVE HTML PARSER — extracts 30+ real parameters ==========
+function parseHTML(html,url){
+    const doc=new DOMParser().parseFromString(html,'text/html');
+    const domain=getDomain(url);
+
+    // --- META ---
+    const title=doc.querySelector('title')?.textContent?.trim()||'';
+    const metaDesc=(doc.querySelector('meta[name="description"]')?.getAttribute('content')||'').trim();
+    const metaKw=(doc.querySelector('meta[name="keywords"]')?.getAttribute('content')||'').trim();
+    const canonical=doc.querySelector('link[rel="canonical"]')?.getAttribute('href')||'';
+    const viewport=doc.querySelector('meta[name="viewport"]')?.getAttribute('content')||'';
+    const charset=doc.querySelector('meta[charset]')?.getAttribute('charset')||doc.querySelector('meta[http-equiv="Content-Type"]')?.getAttribute('content')||'';
+    const robots=doc.querySelector('meta[name="robots"]')?.getAttribute('content')||'';
+    const ogTitle=(doc.querySelector('meta[property="og:title"]')?.getAttribute('content')||'').trim();
+    const ogDesc=(doc.querySelector('meta[property="og:description"]')?.getAttribute('content')||'').trim();
+    const ogImage=doc.querySelector('meta[property="og:image"]')?.getAttribute('content')||'';
+    const twCard=doc.querySelector('meta[name="twitter:card"]')?.getAttribute('content')||'';
+    const favicon=!!(doc.querySelector('link[rel="icon"]')||doc.querySelector('link[rel="shortcut icon"]'));
+    const lang=doc.documentElement.getAttribute('lang')||'';
+
+    // --- HEADINGS ---
+    const h1s=[...doc.querySelectorAll('h1')].map(e=>e.textContent.trim()).filter(Boolean);
+    const h2s=[...doc.querySelectorAll('h2')].map(e=>e.textContent.trim()).filter(Boolean);
+    const h3s=[...doc.querySelectorAll('h3')].map(e=>e.textContent.trim()).filter(Boolean);
+    const headingCount=h1s.length+h2s.length+h3s.length+doc.querySelectorAll('h4,h5,h6').length;
+
+    // --- CONTENT ---
+    const bodyText=(doc.body?.innerText||doc.body?.textContent||'').replace(/\s+/g,' ').trim();
+    const wordCount=bodyText.split(/\s+/).filter(w=>w.length>1).length;
+    const sentences=bodyText.split(/[.!?]+/).filter(s=>s.trim().length>10);
+    const avgSentenceLen=sentences.length?sentences.reduce((a,s)=>a+s.trim().split(/\s+/).length,0)/sentences.length:0;
+    const paragraphs=doc.querySelectorAll('p').length;
+
+    // --- LINKS ---
+    const allLinks=[...doc.querySelectorAll('a[href]')];
+    const internalLinks=allLinks.filter(a=>{try{return new URL(a.href,url).hostname===domain}catch{return true}});
+    const externalLinks=allLinks.filter(a=>{try{return new URL(a.href,url).hostname!==domain}catch{return false}});
+    const nofollowLinks=allLinks.filter(a=>(a.getAttribute('rel')||'').includes('nofollow'));
+
+    // --- IMAGES ---
+    const images=[...doc.querySelectorAll('img')];
+    const imagesWithAlt=images.filter(i=>(i.getAttribute('alt')||'').trim().length>0);
+    const imagesWithoutAlt=images.length-imagesWithAlt.length;
+    const lazyImages=images.filter(i=>i.getAttribute('loading')==='lazy'||i.hasAttribute('data-src')||i.hasAttribute('data-lazy'));
+
+    // --- TECH DETECTION ---
+    const allHTML=html.toLowerCase();
+    const scripts=[...doc.querySelectorAll('script[src]')].map(s=>s.getAttribute('src')||'');
+    const styles=[...doc.querySelectorAll('link[rel="stylesheet"]')].map(l=>l.getAttribute('href')||'');
+    const allRes=[...scripts,...styles,allHTML];
+    const techStack=[];
+    const techMap={
+        'react':['react','react-dom','reactjs','__NEXT_DATA__','_next/'],'vue':['vue.js','vuejs','__vue'],'angular':['angular','ng-version'],
+        'jquery':['jquery'],'bootstrap':['bootstrap'],'tailwind':['tailwind'],'wordpress':['wp-content','wp-includes','wordpress'],
+        'shopify':['shopify','cdn.shopify'],'wix':['wix.com','parastorage'],'squarespace':['squarespace'],
+        'next.js':['_next/','__NEXT_DATA__'],'nuxt':['_nuxt/','__NUXT__'],'gatsby':['gatsby'],
+        'google-analytics':['google-analytics','gtag','googletagmanager'],'google-fonts':['fonts.googleapis','fonts.gstatic'],
+        'cloudflare':['cloudflare','cf-ray'],'font-awesome':['font-awesome','fontawesome'],
+        'lodash':['lodash'],'moment':['moment.js'],'three.js':['three.js','threejs'],
+        'gsap':['gsap','greensock'],'stripe':['stripe.com','js.stripe'],'recaptcha':['recaptcha','grecaptcha'],
+        'hotjar':['hotjar'],'intercom':['intercom'],'crisp':['crisp.chat'],'hubspot':['hubspot'],
+        'mailchimp':['mailchimp'],'typekit':['typekit','use.typekit']
+    };
+    for(const[name,patterns] of Object.entries(techMap)){
+        if(allRes.some(r=>patterns.some(p=>r.includes(p))))techStack.push(name);
+    }
+
+    // --- STRUCTURED DATA ---
+    const jsonLdScripts=[...doc.querySelectorAll('script[type="application/ld+json"]')];
+    let schemaTypes=[];
+    jsonLdScripts.forEach(s=>{try{const d=JSON.parse(s.textContent);schemaTypes.push(d['@type']||(Array.isArray(d['@graph'])?d['@graph'].map(g=>g['@type']).join(','):'Unknown'))}catch{}});
+
+    // --- FORMS & INTERACTIVE ---
+    const forms=doc.querySelectorAll('form').length;
+    const inputs=doc.querySelectorAll('input,textarea,select').length;
+    const buttons=doc.querySelectorAll('button,[type="submit"]').length;
+    const iframes=doc.querySelectorAll('iframe').length;
+    const videos=doc.querySelectorAll('video,iframe[src*="youtube"],iframe[src*="vimeo"]').length;
+
+    // --- ACCESSIBILITY ---
+    const ariaLabels=doc.querySelectorAll('[aria-label],[aria-labelledby],[role]').length;
+    const altTexts=imagesWithAlt.length;
+    const tabindexes=doc.querySelectorAll('[tabindex]').length;
+
+    // --- PERFORMANCE SIGNALS ---
+    const inlineStyles=doc.querySelectorAll('[style]').length;
+    const inlineScripts=[...doc.querySelectorAll('script:not([src])')].length;
+    const cssFiles=styles.length;
+    const jsFiles=scripts.length;
+    const totalResources=cssFiles+jsFiles+images.length;
+    const htmlSize=html.length;
+    const preloads=doc.querySelectorAll('link[rel="preload"],link[rel="prefetch"],link[rel="preconnect"]').length;
+    const asyncScripts=[...doc.querySelectorAll('script[async],script[defer]')].length;
+
+    // --- SECURITY ---
+    const isHttps=url.startsWith('https');
+    const hasCSP=!!doc.querySelector('meta[http-equiv="Content-Security-Policy"]');
+
+    // --- SOCIAL ---
+    const socialLinks=allLinks.filter(a=>/facebook|twitter|linkedin|instagram|youtube|tiktok|pinterest|github/i.test(a.href||'')).length;
+
+    return {
+        url,domain,isHttps,
+        meta:{title,titleLen:title.length,metaDesc,metaDescLen:metaDesc.length,metaKw,canonical:!!canonical,viewport:!!viewport,charset,robots,lang,favicon,ogTitle:!!ogTitle,ogDesc:!!ogDesc,ogImage:!!ogImage,twCard:!!twCard},
+        headings:{h1s,h1Count:h1s.length,h2Count:h2s.length,h3Count:h3s.length,totalHeadings:headingCount},
+        content:{wordCount,paragraphs,sentences:sentences.length,avgSentenceLen:Math.round(avgSentenceLen*10)/10,bodyTextPreview:bodyText.substring(0,300)},
+        links:{total:allLinks.length,internal:internalLinks.length,external:externalLinks.length,nofollow:nofollowLinks.length},
+        images:{total:images.length,withAlt:imagesWithAlt.length,withoutAlt:imagesWithoutAlt,lazyLoaded:lazyImages.length},
+        tech:{stack:techStack,schemaTypes,jsonLdCount:jsonLdScripts.length,forms,inputs,buttons,iframes,videos},
+        accessibility:{ariaLabels,altTexts,tabindexes},
+        performance:{htmlSizeKB:Math.round(htmlSize/1024*10)/10,cssFiles,jsFiles,totalResources,inlineStyles,inlineScripts,preloads,asyncScripts},
+        security:{https:isHttps,cspMeta:hasCSP},
+        social:{socialLinks}
+    };
+}
+
+// ========== SWOT SCORING ENGINE (30+ weighted parameters) ==========
+function computeSwot(data){
+    const params=[];
+    const add=(name,val,max,weight,cat)=>{const score=clamp(val/max*100,0,100);params.push({name,value:val,max,score:Math.round(score),weight,category:cat});return score*weight};
+
+    let sTotal=0,sW=0, wTotal=0,wW=0, oTotal=0,oW=0, tTotal=0,tW=0;
+
+    // --- STRENGTHS (things the site does well → higher = better) ---
+    sTotal+=add('Title tag present & length',data.meta.titleLen>10&&data.meta.titleLen<70?100:data.meta.titleLen>0?50:0,100,3,'S');sW+=3;
+    sTotal+=add('Meta description quality',data.meta.metaDescLen>=80&&data.meta.metaDescLen<=165?100:data.meta.metaDescLen>0?40:0,100,3,'S');sW+=3;
+    sTotal+=add('H1 tag usage',data.headings.h1Count===1?100:data.headings.h1Count>1?60:0,100,2,'S');sW+=2;
+    sTotal+=add('Heading structure depth',Math.min(data.headings.totalHeadings,20),20,2,'S');sW+=2;
+    sTotal+=add('Content volume (words)',Math.min(data.content.wordCount,2000),2000,4,'S');sW+=4;
+    sTotal+=add('Internal linking',Math.min(data.links.internal,50),50,2,'S');sW+=2;
+    sTotal+=add('Image alt text coverage',data.images.total?data.images.withAlt/data.images.total*100:100,100,2,'S');sW+=2;
+    sTotal+=add('HTTPS security',data.security.https?100:0,100,3,'S');sW+=3;
+    sTotal+=add('Open Graph tags',(data.meta.ogTitle?33:0)+(data.meta.ogDesc?33:0)+(data.meta.ogImage?34:0),100,2,'S');sW+=2;
+    sTotal+=add('Structured data (Schema)',Math.min(data.tech.jsonLdCount,3)*33.3,100,2,'S');sW+=2;
+    sTotal+=add('Technology stack richness',Math.min(data.tech.stack.length,8),8,1,'S');sW+=1;
+    sTotal+=add('Responsive viewport',data.meta.viewport?100:0,100,2,'S');sW+=2;
+    sTotal+=add('Language attribute',data.meta.lang?100:0,100,1,'S');sW+=1;
+    sTotal+=add('Favicon present',data.meta.favicon?100:0,100,1,'S');sW+=1;
+
+    // --- WEAKNESSES (deficiencies → higher raw value = worse) ---
+    wTotal+=add('Missing alt texts',data.images.total?100-data.images.withoutAlt/data.images.total*100:100,100,3,'W');wW+=3;
+    wTotal+=add('Content thinness risk',Math.min(data.content.wordCount,1000),1000,4,'W');wW+=4;
+    wTotal+=add('Inline styles count',100-Math.min(data.performance.inlineStyles/20*100,100),100,2,'W');wW+=2;
+    wTotal+=add('JS bloat (files)',100-Math.min(data.performance.jsFiles/15*100,100),100,2,'W');wW+=2;
+    wTotal+=add('Resource count efficiency',100-Math.min(data.performance.totalResources/60*100,100),100,2,'W');wW+=2;
+    wTotal+=add('HTML size efficiency',100-Math.min(data.performance.htmlSizeKB/500*100,100),100,2,'W');wW+=2;
+    wTotal+=add('Heading H1 correctness',data.headings.h1Count===1?100:data.headings.h1Count===0?0:40,100,2,'W');wW+=2;
+    wTotal+=add('Meta keywords (outdated)',data.meta.metaKw?60:100,100,1,'W');wW+=1;
+    wTotal+=add('Canonical tag',data.meta.canonical?100:0,100,2,'W');wW+=2;
+    wTotal+=add('Twitter card meta',data.meta.twCard?100:0,100,1,'W');wW+=1;
+
+    // --- OPPORTUNITIES (growth potential) ---
+    oTotal+=add('Schema.org expansion',data.tech.jsonLdCount<2?100-data.tech.jsonLdCount*50:20,100,3,'O');oW+=3;
+    oTotal+=add('External link profile',Math.min(data.links.external,20),20,2,'O');oW+=2;
+    oTotal+=add('Social media presence',Math.min(data.social.socialLinks,6),6,2,'O');oW+=2;
+    oTotal+=add('Video content potential',data.tech.videos>0?70:100,100,1,'O');oW+=1;
+    oTotal+=add('Lazy loading adoption',data.images.total>3?data.images.lazyLoaded/Math.max(data.images.total,1)*100:80,100,2,'O');oW+=2;
+    oTotal+=add('Preload/prefetch usage',Math.min(data.performance.preloads,5)*20,100,2,'O');oW+=2;
+    oTotal+=add('Async script loading',data.performance.jsFiles?data.performance.asyncScripts/Math.max(data.performance.jsFiles,1)*100:80,100,2,'O');oW+=2;
+    oTotal+=add('Form engagement features',Math.min(data.tech.forms,3)*33,100,1,'O');oW+=1;
+    oTotal+=add('Interactive elements',Math.min(data.tech.buttons+data.tech.inputs,20),20,1,'O');oW+=1;
+
+    // --- THREATS (external/risk factors) ---
+    tTotal+=add('HTTPS status',data.security.https?100:0,100,4,'T');tW+=4;
+    tTotal+=add('CSP security header',data.security.cspMeta?100:30,100,2,'T');tW+=2;
+    tTotal+=add('Robots meta (not blocked)',!data.meta.robots||!data.meta.robots.includes('noindex')?100:0,100,3,'T');tW+=3;
+    tTotal+=add('Excessive inline scripts',100-Math.min(data.performance.inlineScripts/10*100,100),100,2,'T');tW+=2;
+    tTotal+=add('Iframe security risk',data.tech.iframes===0?100:100-Math.min(data.tech.iframes*25,80),100,1,'T');tW+=1;
+    tTotal+=add('Nofollow link ratio',data.links.total?100-data.links.nofollow/data.links.total*100:90,100,1,'T');tW+=1;
+    tTotal+=add('Content readability',data.content.avgSentenceLen>0&&data.content.avgSentenceLen<25?100:data.content.avgSentenceLen<35?60:30,100,2,'T');tW+=2;
+
+    const S=Math.round(sTotal/sW);
+    const W=Math.round(wTotal/wW);
+    const O=Math.round(oTotal/oW);
+    const T=Math.round(tTotal/tW);
+    const overall=Math.round(S*0.35+W*0.25+O*0.20+T*0.20);
+
+    return {S,W,O,T,overall,params};
+}
+
+// ========== SWOT INSIGHT GENERATOR ==========
+function generateInsights(data,scores){
+    const d=data, s=scores;
+    const strengths=[],weaknesses=[],opportunities=[],threats=[];
+
+    // STRENGTHS — based on real data
+    if(d.meta.titleLen>=30&&d.meta.titleLen<=65) strengths.push({text:`Well-optimized title tag at ${d.meta.titleLen} chars`,metric:`${d.meta.titleLen} chars`,cls:'good'});
+    else if(d.meta.title) strengths.push({text:`Title tag is present: "${d.meta.title.substring(0,50)}${d.meta.title.length>50?'...':''}"`,metric:d.meta.titleLen+' chars',cls:d.meta.titleLen>65?'warn':'info'});
+    if(d.meta.metaDescLen>=80&&d.meta.metaDescLen<=165) strengths.push({text:`Meta description well-sized at ${d.meta.metaDescLen} characters`,metric:`${d.meta.metaDescLen} chars`,cls:'good'});
+    if(d.content.wordCount>=500) strengths.push({text:`Substantial content volume with ${d.content.wordCount.toLocaleString()} words`,metric:`${d.content.wordCount} words`,cls:'good'});
+    if(d.headings.h1Count===1) strengths.push({text:`Proper single H1 tag: "${d.headings.h1s[0]?.substring(0,60)||''}"`,metric:'1 H1',cls:'good'});
+    if(d.security.https) strengths.push({text:'Site secured with HTTPS encryption',metric:'HTTPS',cls:'good'});
+    if(d.meta.ogTitle&&d.meta.ogImage) strengths.push({text:'Open Graph tags configured for social sharing',metric:'OG active',cls:'good'});
+    if(d.meta.viewport) strengths.push({text:'Responsive viewport meta tag detected',metric:'Responsive',cls:'good'});
+    if(d.tech.jsonLdCount>0) strengths.push({text:`Structured data found (${d.tech.schemaTypes.join(', ')||'JSON-LD'})`,metric:`${d.tech.jsonLdCount} schema(s)`,cls:'good'});
+    if(d.links.internal>10) strengths.push({text:`Strong internal linking with ${d.links.internal} internal links`,metric:`${d.links.internal} links`,cls:'good'});
+    if(d.tech.stack.length>=3) strengths.push({text:`Modern tech stack: ${d.tech.stack.slice(0,5).join(', ')}`,metric:`${d.tech.stack.length} techs`,cls:'info'});
+    if(d.images.total>0&&d.images.withoutAlt===0) strengths.push({text:'All images have descriptive alt text',metric:'100% alt',cls:'good'});
+    if(d.meta.canonical) strengths.push({text:'Canonical tag configured to prevent duplicate content',metric:'Canonical',cls:'good'});
+    if(d.meta.lang) strengths.push({text:`Language attribute set to "${d.meta.lang}"`,metric:d.meta.lang,cls:'info'});
+
+    // WEAKNESSES — based on real data
+    if(!d.meta.title) weaknesses.push({text:'Missing title tag entirely — critical SEO element',metric:'Missing',cls:'bad'});
+    else if(d.meta.titleLen<20||d.meta.titleLen>70) weaknesses.push({text:`Title tag length ${d.meta.titleLen<20?'too short':'too long'} at ${d.meta.titleLen} chars (ideal: 30-65)`,metric:`${d.meta.titleLen} chars`,cls:'warn'});
+    if(!d.meta.metaDesc) weaknesses.push({text:'No meta description found — search snippets will be auto-generated',metric:'Missing',cls:'bad'});
+    else if(d.meta.metaDescLen<80) weaknesses.push({text:`Meta description too short at ${d.meta.metaDescLen} chars (aim for 120-160)`,metric:`${d.meta.metaDescLen} chars`,cls:'warn'});
+    if(d.content.wordCount<300) weaknesses.push({text:`Thin content with only ${d.content.wordCount} words (aim for 500+)`,metric:`${d.content.wordCount} words`,cls:'bad'});
+    if(d.headings.h1Count===0) weaknesses.push({text:'No H1 heading tag found — important for SEO hierarchy',metric:'0 H1',cls:'bad'});
+    if(d.headings.h1Count>1) weaknesses.push({text:`Multiple H1 tags found (${d.headings.h1Count}) — should be exactly one`,metric:`${d.headings.h1Count} H1s`,cls:'warn'});
+    if(d.images.withoutAlt>0) weaknesses.push({text:`${d.images.withoutAlt} of ${d.images.total} images missing alt text`,metric:`${d.images.withoutAlt} missing`,cls:'bad'});
+    if(!d.meta.viewport) weaknesses.push({text:'No responsive viewport meta tag — poor mobile experience',metric:'Missing',cls:'bad'});
+    if(!d.meta.ogTitle) weaknesses.push({text:'Missing Open Graph tags — social sharing will look poor',metric:'No OG',cls:'warn'});
+    if(d.performance.inlineStyles>15) weaknesses.push({text:`${d.performance.inlineStyles} inline styles detected — hurts maintainability & performance`,metric:`${d.performance.inlineStyles} inline`,cls:'warn'});
+    if(d.performance.jsFiles>12) weaknesses.push({text:`Heavy JavaScript load with ${d.performance.jsFiles} external scripts`,metric:`${d.performance.jsFiles} files`,cls:'warn'});
+    if(d.performance.htmlSizeKB>400) weaknesses.push({text:`Large HTML document at ${d.performance.htmlSizeKB}KB`,metric:`${d.performance.htmlSizeKB}KB`,cls:'warn'});
+    if(!d.meta.canonical) weaknesses.push({text:'No canonical tag — risk of duplicate content issues',metric:'Missing',cls:'warn'});
+    if(d.meta.metaKw) weaknesses.push({text:'Using outdated meta keywords tag (ignored by Google)',metric:'Outdated',cls:'warn'});
+
+    // OPPORTUNITIES — based on real data
+    if(d.tech.jsonLdCount===0) opportunities.push({text:'Add Schema.org structured data for rich search snippets',metric:'No schema',cls:'info'});
+    if(d.images.total>3&&d.images.lazyLoaded===0) opportunities.push({text:`Implement lazy loading for ${d.images.total} images to boost speed`,metric:`${d.images.total} images`,cls:'info'});
+    if(d.performance.preloads===0) opportunities.push({text:'Add preload/prefetch hints for critical resources',metric:'0 preloads',cls:'info'});
+    if(d.social.socialLinks===0) opportunities.push({text:'Add social media profile links for brand visibility',metric:'No social',cls:'info'});
+    if(d.tech.videos===0) opportunities.push({text:'Consider video content to increase engagement and dwell time',metric:'No video',cls:'info'});
+    if(d.links.external<3) opportunities.push({text:'Add authoritative external links to boost credibility (E-E-A-T)',metric:`${d.links.external} ext links`,cls:'info'});
+    if(!d.meta.twCard) opportunities.push({text:'Add Twitter Card meta tags for better tweet previews',metric:'No Twitter Card',cls:'info'});
+    if(d.performance.asyncScripts<d.performance.jsFiles/2) opportunities.push({text:`Convert ${d.performance.jsFiles-d.performance.asyncScripts} blocking scripts to async/defer`,metric:`${d.performance.jsFiles-d.performance.asyncScripts} blocking`,cls:'warn'});
+    if(d.tech.forms===0&&d.content.wordCount>200) opportunities.push({text:'Add lead capture forms (newsletter, contact) for conversions',metric:'0 forms',cls:'info'});
+    if(d.accessibility.ariaLabels<5) opportunities.push({text:'Improve accessibility with ARIA labels and roles',metric:`${d.accessibility.ariaLabels} ARIA`,cls:'info'});
+
+    // THREATS — based on real data
+    if(!d.security.https) threats.push({text:'No HTTPS — browsers show "Not Secure" warning, Google penalizes',metric:'HTTP only',cls:'bad'});
+    if(!d.security.cspMeta) threats.push({text:'No Content Security Policy meta tag — vulnerable to XSS attacks',metric:'No CSP',cls:'warn'});
+    if(d.meta.robots&&d.meta.robots.includes('noindex')) threats.push({text:'Robots meta contains "noindex" — page will NOT appear in search',metric:'NOINDEX',cls:'bad'});
+    if(d.performance.inlineScripts>8) threats.push({text:`${d.performance.inlineScripts} inline scripts — security risk and render-blocking`,metric:`${d.performance.inlineScripts} inline`,cls:'warn'});
+    if(d.tech.iframes>2) threats.push({text:`${d.tech.iframes} iframes detected — potential security/performance concern`,metric:`${d.tech.iframes} iframes`,cls:'warn'});
+    if(d.content.avgSentenceLen>30) threats.push({text:`Complex readability: avg ${d.content.avgSentenceLen} words/sentence (aim under 20)`,metric:`${d.content.avgSentenceLen} w/s`,cls:'warn'});
+    if(d.links.total>200) threats.push({text:`Excessive links (${d.links.total}) — may trigger spam signals`,metric:`${d.links.total} links`,cls:'warn'});
+    if(d.performance.totalResources>50) threats.push({text:`High resource count (${d.performance.totalResources}) — slow load times hurt rankings`,metric:`${d.performance.totalResources} resources`,cls:'warn'});
+    if(d.tech.stack.includes('jquery')&&d.tech.stack.includes('react')) threats.push({text:'Both jQuery and React loaded — technical debt and bundle bloat',metric:'Conflict',cls:'warn'});
+
+    return {strengths:strengths.slice(0,8),weaknesses:weaknesses.slice(0,8),opportunities:opportunities.slice(0,8),threats:threats.slice(0,8)};
+}
+
+// ========== RADAR CHART (Pure Canvas) ==========
+function drawRadar(canvas,scores){
+    const ctx=canvas.getContext('2d');
+    const W=canvas.width,H=canvas.height;
+    const cx=W/2,cy=H/2,R=W*0.38;
+    ctx.clearRect(0,0,W,H);
+
+    const dims=['S','W','O','T'];
+    const labels=['Strengths','Weaknesses','Opportunities','Threats'];
+    const colors=[getCS('--s-color'),getCS('--w-color'),getCS('--o-color'),getCS('--t-color')];
+    const n=4;
+
+    // Grid
+    for(let ring=1;ring<=5;ring++){
+        ctx.beginPath();
+        const r=R*ring/5;
+        for(let i=0;i<=n;i++){
+            const angle=Math.PI*2*i/n-Math.PI/2;
+            const x=cx+r*Math.cos(angle),y=cy+r*Math.sin(angle);
+            i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+        }
+        ctx.closePath();
+        ctx.strokeStyle=getCS('--bdr');ctx.lineWidth=1;ctx.stroke();
+    }
+
+    // Axes
+    for(let i=0;i<n;i++){
+        const angle=Math.PI*2*i/n-Math.PI/2;
+        ctx.beginPath();ctx.moveTo(cx,cy);
+        ctx.lineTo(cx+R*Math.cos(angle),cy+R*Math.sin(angle));
+        ctx.strokeStyle=getCS('--bdr');ctx.lineWidth=1;ctx.stroke();
+    }
+
+    // Data polygon
+    const vals=dims.map(d=>scores[d]/100);
+    ctx.beginPath();
+    for(let i=0;i<=n;i++){
+        const idx=i%n;
+        const angle=Math.PI*2*idx/n-Math.PI/2;
+        const r=R*vals[idx];
+        const x=cx+r*Math.cos(angle),y=cy+r*Math.sin(angle);
+        i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    const pRgb=getCS('--p-rgb');
+    ctx.fillStyle=`rgba(${pRgb},0.15)`;ctx.fill();
+    ctx.strokeStyle=getCS('--p');ctx.lineWidth=2.5;ctx.stroke();
+
+    // Dots + labels
+    for(let i=0;i<n;i++){
+        const angle=Math.PI*2*i/n-Math.PI/2;
+        const r=R*vals[i];
+        const x=cx+r*Math.cos(angle),y=cy+r*Math.sin(angle);
+        ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fillStyle=colors[i];ctx.fill();
+        ctx.beginPath();ctx.arc(x,y,8,0,Math.PI*2);ctx.strokeStyle=colors[i];ctx.lineWidth=2;ctx.stroke();
+
+        // Label
+        const lx=cx+(R+30)*Math.cos(angle),ly=cy+(R+30)*Math.sin(angle);
+        ctx.font='bold 13px Inter,sans-serif';ctx.fillStyle=colors[i];ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText(labels[i],lx,ly);
+        ctx.font='bold 11px Inter,sans-serif';ctx.fillStyle=getCS('--tx2');
+        ctx.fillText(scores[dims[i]]+'/100',lx,ly+16);
+    }
+}
+
+function getCS(prop){return getComputedStyle(document.documentElement).getPropertyValue(prop).trim()}
+
+// ========== MAIN ORCHESTRATOR ==========
+async function runSwot(){
+    const input=document.getElementById('urlInput');
+    const url=normalizeUrl(input.value);
+    if(!url){document.getElementById('searchBox').style.borderColor='var(--red)';input.focus();setTimeout(()=>document.getElementById('searchBox').style.borderColor='',2000);return}
+    input.value=url;
+
+    document.getElementById('analyzeBtn').disabled=true;
+    document.getElementById('resultsEl').classList.remove('active');
+    document.getElementById('errorBox').classList.remove('active');
+    document.getElementById('ldUrl').textContent=getDomain(url);
+
+    const loadEl=document.getElementById('loadingEl');
+    loadEl.classList.add('active');
+    const steps=[...document.querySelectorAll('#ldSteps li')];
+    steps.forEach((s,i)=>{s.className=i===0?'active':'';s.querySelector('.st-i').innerHTML=i===0?'&#8635;':'&#8226;'});
+
+    async function advanceStep(i){
+        await delay(300+Math.random()*300);
+        if(steps[i]){steps[i].className='done';steps[i].querySelector('.st-i').innerHTML='&#10003;'}
+        if(steps[i+1]){steps[i+1].className='active';steps[i+1].querySelector('.st-i').innerHTML='&#8635;'}
+    }
+
+    try{
+        // Step 0: Fetch
+        const html=await fetchHTML(url);
+        await advanceStep(0);
+
+        // Step 1: Parse
+        const parsed=parseHTML(html,url);
+        await advanceStep(1);
+
+        // Step 2: Content analysis
+        await advanceStep(2);
+
+        // Step 3: Tech detection
+        await advanceStep(3);
+
+        // Step 4: UX/Accessibility
+        await advanceStep(4);
+
+        // Step 5: SWOT scoring
+        const swotResult=computeSwot(parsed);
+        await advanceStep(5);
+
+        // Step 6: Generate insights
+        const insights=generateInsights(parsed,swotResult);
+        await advanceStep(6);
+        await delay(200);
+
+        // Render
+        loadEl.classList.remove('active');
+        renderSwot(url,parsed,swotResult,insights);
+        document.getElementById('resultsEl').classList.add('active');
+        document.getElementById('resultsEl').scrollIntoView({behavior:'smooth'});
+
+    }catch(err){
+        loadEl.classList.remove('active');
+        const errBox=document.getElementById('errorBox');
+        document.getElementById('errorMsg').textContent=err.message+'. Try a different URL or check if the website is accessible.';
+        errBox.classList.add('active');
+    }
+
+    document.getElementById('analyzeBtn').disabled=false;
+}
+
+// ========== RENDER ==========
+function renderSwot(url,data,scores,insights){
+    document.getElementById('resUrlText').textContent=url;
+
+    // Radar
+    drawRadar(document.getElementById('radarCanvas'),scores);
+    animateNumber(document.getElementById('swotScoreNum'),scores.overall);
+
+    // Dimensions
+    const dimData=[
+        {key:'S',label:'Strengths',icon:'S',score:scores.S},
+        {key:'W',label:'Weaknesses',icon:'W',score:scores.W},
+        {key:'O',label:'Opportunities',icon:'O',score:scores.O},
+        {key:'T',label:'Threats',icon:'T',score:scores.T}
+    ];
+    document.getElementById('swotDims').innerHTML=dimData.map(d=>`
+        <div class="dim-row">
+            <div class="dim-icon ${d.key.toLowerCase()}">${d.icon}</div>
+            <div class="dim-info">
+                <div class="dim-label"><span>${d.label}</span><span style="color:var(--${d.key.toLowerCase()}-color)">${d.score}/100</span></div>
+                <div class="dim-bar"><div class="dim-bar-fill ${d.key.toLowerCase()}" style="width:${d.score}%"></div></div>
+            </div>
+        </div>`).join('');
+
+    // SWOT Grid
+    const gridHTML=[
+        {cls:'s',headCls:'s-head',title:'Strengths',icon:'S',items:insights.strengths,bulletColor:'var(--s-color)'},
+        {cls:'w',headCls:'w-head',title:'Weaknesses',icon:'W',items:insights.weaknesses,bulletColor:'var(--w-color)'},
+        {cls:'o',headCls:'o-head',title:'Opportunities',icon:'O',items:insights.opportunities,bulletColor:'var(--o-color)'},
+        {cls:'t',headCls:'t-head',title:'Threats',icon:'T',items:insights.threats,bulletColor:'var(--t-color)'}
+    ];
+
+    document.getElementById('swotGrid').innerHTML=gridHTML.map(g=>`
+        <div class="swot-card">
+            <div class="swot-card-head ${g.headCls}"><div class="sq">${g.icon}</div>${g.title} <span style="font-size:13px;font-weight:500;color:var(--tx3);margin-left:auto">${g.items.length} found</span></div>
+            <div class="swot-card-body">
+                ${g.items.length?g.items.map(it=>`<div class="swot-item"><div class="swot-bullet" style="background:${g.bulletColor}"></div><div>${it.text} <span class="metric ${it.cls}">${it.metric}</span></div></div>`).join(''):'<div class="swot-item" style="color:var(--tx3)">No significant items detected</div>'}
+            </div>
+        </div>`).join('');
+
+    // Params grid
+    document.getElementById('paramsGrid').innerHTML=scores.params.map(p=>{
+        const cls=p.score>=70?'good':p.score>=40?'warn':'bad';
+        const barColor=p.score>=70?'var(--green)':p.score>=40?'var(--yellow)':'var(--red)';
+        return `<div class="param-card">
+            <div class="param-head">
+                <span class="param-name">${p.name}</span>
+                <span class="param-val ${cls}">${p.score}/100</span>
+            </div>
+            <div class="param-bar"><div class="param-bar-fill" style="width:${p.score}%;background:${barColor}"></div></div>
+        </div>`;
+    }).join('');
+
+    // Raw JSON
+    document.getElementById('rawJson').textContent=JSON.stringify(data,null,2);
+}
+
+function animateNumber(el,target){
+    const dur=1500;const start=performance.now();
+    const c=target>=70?getCS('--green'):target>=40?getCS('--yellow'):getCS('--red');
+    function step(now){
+        const p=Math.min((now-start)/dur,1);
+        const eased=1-Math.pow(1-p,3);
+        el.textContent=Math.round(target*eased);
+        el.style.color=c;
+        if(p<1)requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+}
+
+// Re-draw radar on theme change
+const origToggle=toggleTheme;
+toggleTheme=function(){origToggle();const c=document.getElementById('radarCanvas');if(c.getContext&&document.getElementById('resultsEl').classList.contains('active')){setTimeout(()=>{const s=document.getElementById('swotScoreNum');const v=parseInt(s.textContent)||0;drawRadar(c,window._lastScores||{S:0,W:0,O:0,T:0})},100)}}
+
+// Save last scores for redraw
+const origRender=renderSwot;
+renderSwot=function(url,data,scores,insights){window._lastScores=scores;origRender(url,data,scores,insights)}
+
+document.getElementById('urlInput').addEventListener('keydown',e=>{if(e.key==='Enter')runSwot()});
+window.addEventListener('load',()=>document.getElementById('urlInput').focus());
+</script>
+</body>
+</html>
