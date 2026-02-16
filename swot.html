@@ -64,10 +64,25 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);line-height:1.
 .search-box button:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(var(--p-rgb),.4)}
 .search-box button:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
 .search-box button svg{width:16px;height:16px}
+.quick-sites{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:14px}
+.site-chip{border:1px solid var(--bdr);background:var(--bg3);color:var(--tx2);padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;cursor:pointer;transition:all var(--t)}
+.site-chip:hover{border-color:var(--p);color:var(--p);background:rgba(var(--p-rgb),.08)}
 
 .features{display:flex;justify-content:center;gap:24px;margin-top:24px;flex-wrap:wrap}
 .feat{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--tx3);font-weight:500}
 .feat svg{width:16px;height:16px;color:var(--green)}
+
+.history-wrap{margin-top:18px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.history-wrap span{font-size:12px;color:var(--tx3);font-weight:600}
+.history-list{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.history-btn{background:transparent;border:1px solid var(--bdr);border-radius:999px;color:var(--tx2);padding:5px 10px;font-size:12px;cursor:pointer;max-width:180px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
+.history-btn:hover{border-color:var(--sec);color:var(--sec)}
+.auth-wrap{max-width:760px;margin:18px auto 0;padding:14px 16px;border:1px solid var(--bdr);border-radius:14px;background:var(--bg3);display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:center}
+.auth-wrap input{background:var(--bg4);color:var(--tx);border:1px solid var(--bdr);padding:9px 12px;border-radius:10px;min-width:190px;outline:none}
+.auth-wrap input:focus{border-color:var(--p)}
+.auth-btn{border:1px solid var(--bdr);background:var(--bg4);color:var(--tx2);padding:8px 12px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer}
+.auth-btn.primary{background:linear-gradient(135deg,var(--p),var(--accent));color:#fff;border:none}
+.auth-state{font-size:12px;color:var(--tx3);padding:4px 8px}
 
 /* Loading */
 .loading{display:none;text-align:center;padding:80px 24px;position:relative;z-index:1}
@@ -102,6 +117,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);line-height:1.
 .res-header{text-align:center;padding:32px 0 24px}
 .res-url{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;background:var(--bg3);border:1px solid var(--bdr);border-radius:999px;font-size:14px;font-weight:500;color:var(--tx2);word-break:break-all}
 .res-url svg{width:16px;height:16px;color:var(--p);flex-shrink:0}
+.res-actions{margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.action-btn{border:1px solid var(--bdr);background:var(--bg3);color:var(--tx2);padding:8px 14px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;transition:all var(--t)}
+.action-btn:hover{border-color:var(--p);color:var(--p)}
 
 /* SWOT Score Overview */
 .swot-score-hero{display:grid;grid-template-columns:280px 1fr;gap:40px;align-items:center;background:linear-gradient(135deg,rgba(var(--p-rgb),.04) 0%,transparent 60%),var(--bg3);border:1px solid var(--bdr);border-radius:var(--radius);padding:40px;margin-bottom:32px;box-shadow:var(--sh-sm)}
@@ -183,7 +201,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);line-height:1.
 .footer .copy{font-size:12px;color:var(--tx3);margin-top:12px}
 
 /* Responsive */
-@media(max-width:900px){.swot-grid{grid-template-columns:1fr}.swot-score-hero{grid-template-columns:1fr;text-align:center}.nav-links{display:none}}
+@media(max-width:900px){.swot-grid{grid-template-columns:1fr}.swot-score-hero{grid-template-columns:1fr;text-align:center}.nav-links{display:none}.history-btn{max-width:120px}}
 @media(max-width:600px){.hero{padding:48px 16px 32px}.search-box button span.btn-text{display:none}.search-box button{padding:12px 16px}.swot-score-hero{padding:24px}}
 @media print{.header,.ad-space,.footer,.bg-mesh,.theme-toggle,.search-wrap,.features{display:none!important}body{background:#fff;color:#000}}
 </style>
@@ -215,11 +233,21 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);line-height:1.
         <input type="url" id="urlInput" placeholder="Enter any website URL (e.g., github.com)" autocomplete="url" spellcheck="false">
         <button id="analyzeBtn" onclick="runSwot()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg><span class="btn-text">Analyze SWOT</span></button>
     </div>
+    <div class="quick-sites" id="quickSites"></div>
 </div>
 <div class="features">
     <div class="feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Live HTML Parsing</div>
     <div class="feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>30+ Real Metrics</div>
     <div class="feat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Unique Per Website</div>
+</div>
+<div class="history-wrap"><span>Recent analyses:</span><div class="history-list" id="historyList"></div></div>
+<div class="auth-wrap">
+    <input type="email" id="authEmail" placeholder="Work email">
+    <input type="password" id="authPassword" placeholder="Password (min 8 chars)">
+    <button class="auth-btn primary" id="registerBtn">Create account</button>
+    <button class="auth-btn" id="loginBtn">Login</button>
+    <button class="auth-btn" id="logoutBtn">Logout</button>
+    <span class="auth-state" id="authState">Checking authentication...</span>
 </div>
 </section>
 
@@ -251,6 +279,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);line-height:1.
 
 <div class="res-header">
     <div class="res-url"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span id="resUrlText"></span></div>
+    <div class="res-actions">
+        <button class="action-btn" id="copySummaryBtn">Copy Summary</button>
+        <button class="action-btn" id="downloadJsonBtn">Download JSON</button>
+        <button class="action-btn" id="downloadMdBtn">Download Report</button>
+        <button class="action-btn" onclick="window.print()">Print</button>
+    </div>
 </div>
 
 <!-- Score Hero + Radar -->
@@ -302,6 +336,154 @@ const delay=ms=>new Promise(r=>setTimeout(r,ms));
 function normalizeUrl(u){u=u.trim();if(!u)return'';if(!/^https?:\/\//i.test(u))u='https://'+u;return u}
 function getDomain(u){try{return new URL(u).hostname}catch{return u}}
 function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v))}
+const SAMPLE_SITES=['github.com','wikipedia.org','openai.com','shopify.com','developer.mozilla.org'];
+let currentUser=null;
+
+async function apiFetch(url,opts={}){
+    const cfg={credentials:'include',...opts};
+    cfg.headers={'Content-Type':'application/json',...(opts.headers||{})};
+    const resp=await fetch(url,cfg);
+    let payload={};
+    try{payload=await resp.json()}catch{}
+    if(!resp.ok) throw new Error(payload.error||`Request failed (${resp.status})`);
+    return payload;
+}
+
+function setAuthState(txt,isErr=false){
+    const el=document.getElementById('authState');
+    el.textContent=txt;
+    el.style.color=isErr?'var(--red)':'var(--tx3)';
+}
+
+function getCreds(){
+    return {
+        email:document.getElementById('authEmail').value.trim().toLowerCase(),
+        password:document.getElementById('authPassword').value
+    };
+}
+
+function updateAuthUI(){
+    const hasUser=!!currentUser;
+    document.getElementById('registerBtn').disabled=hasUser;
+    document.getElementById('loginBtn').disabled=hasUser;
+    document.getElementById('logoutBtn').disabled=!hasUser;
+    if(hasUser) setAuthState(`Signed in as ${currentUser.email} (${currentUser.plan})`);
+}
+
+async function initAuth(){
+    try{
+        const out=await apiFetch('/api/auth/me',{method:'GET',headers:{}});
+        currentUser=out.user;
+        updateAuthUI();
+    }catch{
+        currentUser=null;
+        setAuthState('Sign in to save and manage analyses.');
+        updateAuthUI();
+    }
+}
+
+async function registerUser(){
+    const {email,password}=getCreds();
+    if(!email||!password){setAuthState('Email and password are required',true);return}
+    try{
+        const out=await apiFetch('/api/auth/register',{method:'POST',body:JSON.stringify({email,password})});
+        currentUser=out.user;updateAuthUI();
+    }catch(err){setAuthState(err.message,true)}
+}
+
+async function loginUser(){
+    const {email,password}=getCreds();
+    if(!email||!password){setAuthState('Email and password are required',true);return}
+    try{
+        const out=await apiFetch('/api/auth/login',{method:'POST',body:JSON.stringify({email,password})});
+        currentUser=out.user;updateAuthUI();await renderHistory();
+    }catch(err){setAuthState(err.message,true)}
+}
+
+async function logoutUser(){
+    try{await apiFetch('/api/auth/logout',{method:'POST',body:'{}'})}catch{}
+    currentUser=null;
+    document.getElementById('historyList').innerHTML='<span style="font-size:12px;color:var(--tx3)">Login to view history</span>';
+    setAuthState('Signed out.');
+    updateAuthUI();
+}
+
+async function saveHistory(url,data,scores,insights){
+    try{
+        await apiFetch('/api/analyze',{method:'POST',body:JSON.stringify({url,data,scores,insights})});
+        return true;
+    }catch{return false}
+}
+
+async function renderHistory(){
+    const wrap=document.getElementById('historyList');
+    try{
+        const out=await apiFetch('/api/history?limit=8',{method:'GET',headers:{}});
+        const items=out.items||[];
+        wrap.innerHTML=items.length?items.map(h=>`<button class="history-btn" title="${h.url}" onclick="loadFromHistory(${h.id})">${h.domain} (${h.overall})</button>`).join(''):'<span style="font-size:12px;color:var(--tx3)">None yet</span>';
+    }catch{
+        wrap.innerHTML='<span style="font-size:12px;color:var(--tx3)">History API unavailable</span>';
+    }
+}
+
+async function loadFromHistory(id){
+    try{
+        const item=await apiFetch(`/api/history/${id}`,{method:'GET',headers:{}});
+        const payload=item.payload||{};
+        if(!payload.url||!payload.data||!payload.scores||!payload.insights)throw new Error('History payload is invalid');
+        document.getElementById('urlInput').value=payload.url;
+        renderSwot(payload.url,payload.data,payload.scores,payload.insights);
+        document.getElementById('resultsEl').classList.add('active');
+        document.getElementById('resultsEl').scrollIntoView({behavior:'smooth'});
+    }catch(err){
+        const errBox=document.getElementById('errorBox');
+        document.getElementById('errorMsg').textContent=err.message;
+        errBox.classList.add('active');
+    }
+}
+
+function renderQuickSites(){
+    document.getElementById('quickSites').innerHTML=SAMPLE_SITES.map(site=>`<button class="site-chip" onclick="fillSite('${site}')">${site}</button>`).join('');
+}
+
+function fillSite(site){
+    document.getElementById('urlInput').value=`https://${site}`;
+    document.getElementById('urlInput').focus();
+}
+
+function downloadFile(name,content,type='text/plain'){
+    const blob=new Blob([content],{type});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=name;
+    a.click();
+    URL.revokeObjectURL(a.href);
+}
+
+function buildMarkdownReport(payload){
+    if(!payload)return '';
+    const {url,data,scores,insights}=payload;
+    const parts=[
+`# SWOT Report\n`,
+`- URL: ${url}`,
+`- Generated: ${new Date().toISOString()}`,
+`- Overall Score: ${scores.overall}/100\n`,
+`## Dimension Scores`,
+`- Strengths: ${scores.S}/100`,
+`- Weaknesses: ${scores.W}/100`,
+`- Opportunities: ${scores.O}/100`,
+`- Threats: ${scores.T}/100\n`
+    ];
+    [['Strengths',insights.strengths],['Weaknesses',insights.weaknesses],['Opportunities',insights.opportunities],['Threats',insights.threats]].forEach(([label,items])=>{
+        parts.push(`## ${label}`);
+        (items.length?items:[{text:'No significant items detected',metric:'-'}]).forEach(it=>parts.push(`- ${it.text} (${it.metric})`));
+        parts.push('');
+    });
+    parts.push('## Extracted Metrics');
+    scores.params.forEach(p=>parts.push(`- ${p.name}: ${p.score}/100`));
+    parts.push('\n```json\n'+JSON.stringify(data,null,2)+'\n```');
+    return parts.join('\n');
+}
 
 // ========== CORS PROXY FETCHER ==========
 const PROXIES=[
@@ -311,6 +493,11 @@ const PROXIES=[
 ];
 
 async function fetchHTML(url){
+    try{
+        const data=await apiFetch('/api/fetch-html',{method:'POST',body:JSON.stringify({url}),signal:AbortSignal.timeout(12000)});
+        if((data.html||'').length>100) return data.html;
+    }catch{}
+
     let lastErr;
     for(const mkProxy of PROXIES){
         try{
@@ -638,6 +825,12 @@ function getCS(prop){return getComputedStyle(document.documentElement).getProper
 // ========== MAIN ORCHESTRATOR ==========
 async function runSwot(){
     const input=document.getElementById('urlInput');
+    if(!currentUser){
+        const errBox=document.getElementById('errorBox');
+        document.getElementById('errorMsg').textContent='Please login or create an account to run analyses and store history.';
+        errBox.classList.add('active');
+        return;
+    }
     const url=normalizeUrl(input.value);
     if(!url){document.getElementById('searchBox').style.borderColor='var(--red)';input.focus();setTimeout(()=>document.getElementById('searchBox').style.borderColor='',2000);return}
     input.value=url;
@@ -688,6 +881,8 @@ async function runSwot(){
         // Render
         loadEl.classList.remove('active');
         renderSwot(url,parsed,swotResult,insights);
+        const persisted=await saveHistory(url,parsed,swotResult,insights);
+        if(persisted) await renderHistory();
         document.getElementById('resultsEl').classList.add('active');
         document.getElementById('resultsEl').scrollIntoView({behavior:'smooth'});
 
@@ -703,6 +898,7 @@ async function runSwot(){
 
 // ========== RENDER ==========
 function renderSwot(url,data,scores,insights){
+    window._lastPayload={url,data,scores,insights};
     document.getElementById('resUrlText').textContent=url;
 
     // Radar
@@ -780,7 +976,21 @@ const origRender=renderSwot;
 renderSwot=function(url,data,scores,insights){window._lastScores=scores;origRender(url,data,scores,insights)}
 
 document.getElementById('urlInput').addEventListener('keydown',e=>{if(e.key==='Enter')runSwot()});
-window.addEventListener('load',()=>document.getElementById('urlInput').focus());
+document.getElementById('downloadJsonBtn').addEventListener('click',()=>{
+    if(!window._lastPayload)return;
+    downloadFile(`swot-${getDomain(window._lastPayload.url)}.json`,JSON.stringify(window._lastPayload,null,2),'application/json');
+});
+document.getElementById('downloadMdBtn').addEventListener('click',()=>{
+    if(!window._lastPayload)return;
+    downloadFile(`swot-${getDomain(window._lastPayload.url)}.md`,buildMarkdownReport(window._lastPayload),'text/markdown');
+});
+document.getElementById('copySummaryBtn').addEventListener('click',async()=>{
+    if(!window._lastPayload)return;
+    const p=window._lastPayload;
+    const text=`SWOT for ${p.url}\nOverall: ${p.scores.overall}/100\nS:${p.scores.S} W:${p.scores.W} O:${p.scores.O} T:${p.scores.T}`;
+    try{await navigator.clipboard.writeText(text);document.getElementById('copySummaryBtn').textContent='Copied!';setTimeout(()=>document.getElementById('copySummaryBtn').textContent='Copy Summary',1200)}catch{}
+});
+window.addEventListener('load',async()=>{document.getElementById('urlInput').focus();renderQuickSites();document.getElementById('registerBtn').addEventListener('click',registerUser);document.getElementById('loginBtn').addEventListener('click',loginUser);document.getElementById('logoutBtn').addEventListener('click',logoutUser);await initAuth();if(currentUser)await renderHistory();else document.getElementById('historyList').innerHTML='<span style="font-size:12px;color:var(--tx3)">Login to view history</span>'});
 </script>
 </body>
 </html>
